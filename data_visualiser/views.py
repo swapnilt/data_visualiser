@@ -9,16 +9,48 @@ import django_rq
 from bg_jobs.fetch_data import job as myjob
 
 
-def check_job_status():
-    # check if job is finished
-    job_id = cache.get(JOB_ID)
-    if not job_id:
-        return 
-    q = django_rq.get_queue('default')
-    job = q.fetch_job(job_id)
-    if job: return job.status
-    return
+def reset_job():
+    cache.delete(JOB_ID)
+    cache.delete(DATA_FETCH_STATUS)
 
+
+def check_job_status():
+    # check if job is finished        
+    status = cache.get(DATA_FETCH_STATUS)    
+    if status == DATA_FETCH_COMPLETE:
+        return status
+    
+    if status == DATA_FETCH_STARTED:
+        # verify that the job is still running
+        job_id = cache.get(JOB_ID)
+        if not job_id:
+            # this should not happen
+            reset_job()
+            return 
+        # verify the actual job status
+        q = django_rq.get_queue('default')
+        job = q.fetch_job(job_id)
+        if not job:  
+            # the job was not found in the queue
+            # reset the job
+            # the job didn't complete
+            reset_job()
+            return
+    
+        status = job.status
+        if status == DATA_FETCH_STARTED:
+            return status
+        elif status == DATA_FETCH_COMPLETE:
+            # this should not happen
+            cache.set(DATA_FETCH_STATUS, DATA_FETCH_COMPLETE)
+            return status
+        else:
+            reset_job()
+            
+
+def set_job_status(job):
+    cache.set(DATA_FETCH_STATUS, DATA_FETCH_STARTED)
+    cache.set(JOB_ID, job.id)
 
 def homepage(request):
     ctx= {
@@ -50,7 +82,8 @@ def homepage(request):
             SunshineData.objects.all().delete()
             # put task in rq queue
             job = django_rq.enqueue(myjob)
-            cache.set(JOB_ID, job.id)
+            set_job_status(job)
+            
             
         
         ctx['in_prog'] = True

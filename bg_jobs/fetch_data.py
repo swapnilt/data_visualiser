@@ -71,7 +71,7 @@ def job():
                 
             model.objects.bulk_create(data_objects)
     
-
+    cache.set(DATA_FETCH_STATUS, DATA_FETCH_COMPLETE)
     
 
     
