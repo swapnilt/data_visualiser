@@ -5,7 +5,7 @@
 * PostgreSQL 9.4
 
 To run on localhost, 
-create database 'kisanhub'
+create database `kisanhub`
 
 
     git clone https://github.com/swapnilt/data_visualiser    
@@ -14,8 +14,9 @@ create database 'kisanhub'
     source env/bin/activate    
     pip install -r requirements.txt
 
-update database credentials in data_visualiser/settings.py
-Make sure redis can accept connection on unix socket and the socket name is updated in data_visualiser/settings.py
+update database credentials in `data_visualiser/settings.py`.
+
+Make sure redis can accept connection on unix socket and the socket name is updated in `data_visualiser/settings.py`
 
 
     python manage.py migrate    
