@@ -47,7 +47,14 @@
 		
 		{% if data_available %}
 			<div ng-controller="baseCtrl">
-			{% verbatim %}
+				<div class="pull-right">
+					<form id="refetch-form" method="post" action="">
+					{% csrf_token %}
+					<input type="submit" value="Clear data and refetch">
+					</form> 
+				</div>
+				
+			
 				<div>
 					Select Data Type:
 						<select ng-model="data_type" ng-change="update_data_type()">
@@ -59,7 +66,7 @@
 						</select>
 				</div><br>
 				
-				<h4>Compare data</h4>
+				<h4>View/Compare data</h4>
 				<div>
 					Select region : 
 						<select ng-model="region" ng-change="update_region()">
@@ -71,10 +78,9 @@
 					
 					Select year:
 						<select ng-model="year" ng-change="update_year()">
-							<option value="1991">1991</option>
-							<option value="1992">1992</option>
-							<option value="1993">1993</option>
-							<option value="1994">1994</option>
+							{% for year in years %}
+							<option value="{{year}}">{{year}}</option>
+							{% endfor %}
 						</select>
 				</div>
 					
@@ -92,17 +98,16 @@
 						
 					 Select year:
 						<select ng-model="year2" ng-change="update_year2()">
-							<option value="1991">1991</option>
-							<option value="1992">1992</option>
-							<option value="1993">1993</option>
-							<option value="1994">1994</option>
+							{% for year in years %}
+							<option value="{{year}}">{{year}}</option>
+							{% endfor %}
 						</select>
 				</div>
 				
 				
 				<div id="chart_div"></div>
 				  
-			{% endverbatim %}
+			
 			</div>
 		
 		{% else %}

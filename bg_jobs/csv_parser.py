@@ -37,9 +37,10 @@ class CSVParser(object):
                 m = re.match("(\d{4})(.+)", row)
                 if m:
                     groups =  m.groups()
-                    d1 =  groups[0]
-                    d2 =  groups[1]
-                    val_list = [d1]
+                    d1 =  groups[0]     # the year part
+                    d2 =  groups[1]     # rest of the string in the row
+                    d1 = int(d1)
+                    val_list = [d1]     # append year as first element
                     def myfunc(matchobj):
                         value = matchobj.groups()[0]
                         try:

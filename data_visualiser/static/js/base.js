@@ -154,12 +154,12 @@ app.controller('baseCtrl', function($scope, $http , $q) {
 			'July', 'August', 'September', 'October', 'November', 'December'];
 			
 		console.log("trying to prepare chart data...");
-		if($scope._region1 === null){
+		if($scope.region1_data === null){
 			console.log("unable to prepare chart data. region1 data is null");
 			return;
 		}
 			
-		if($scope._region2 !== null){
+		if($scope.region2_data !== null){
 			
 			//var data = [['Month', $scope._region1, $scope._region2]];
 			var data = [];
@@ -306,5 +306,11 @@ app.controller('baseCtrl', function($scope, $http , $q) {
 	
 	$scope.init();
 	
+});
+
+
+$('#refetch-form').submit(function() {
+    var res = confirm("All existing data will be deleted. Are you sure?");
+    return res; 
 });
 

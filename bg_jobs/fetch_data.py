@@ -41,10 +41,7 @@ def make_request(url):
     
 
 
-def get_data(region, order, data_type):
-    res = make_request(URL)
-    html = res.read()
-    soup = BeautifulSoup(html, 'html.parser')
+def get_data(soup, region, order, data_type):
     title = " ".join([region, order, data_type])
     tag = soup.find("a", title = title)
     file_link = tag['href']
@@ -52,12 +49,17 @@ def get_data(region, order, data_type):
     parser = CSVParser()
     return parser.parse(res)
     
+
+    
     
 def job():
+    res = make_request(URL)
+    html = res.read()
+    soup = BeautifulSoup(html, 'html.parser')
     for region in REGIONS:
         for data_type in MODEL_MAP.keys():
             model = MODEL_MAP[data_type]
-            parsed_data = get_data(region, ORDER_TYPE, data_type)
+            parsed_data = get_data(soup, region, ORDER_TYPE, data_type)
             data_objects = []
             for row in parsed_data:
                 year = row[0]
@@ -69,7 +71,7 @@ def job():
                 
             model.objects.bulk_create(data_objects)
     
-    cache.set(DATA_FETCH_STATUS, DATA_FETCH_COMPLETE)
+
     
 
     
