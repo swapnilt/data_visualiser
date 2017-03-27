@@ -1,0 +1,132 @@
+{% load mytags %}
+
+<!DOCTYPE html>
+<html>
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	
+	<!-- Latest compiled and minified CSS -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" 
+	integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" 
+	crossorigin="anonymous">
+	
+	<!-- Optional theme -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" 
+	integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" 
+	crossorigin="anonymous">
+	
+	<!-- Latest compiled and minified JavaScript -->
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" 
+	integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" 
+	crossorigin="anonymous"></script>
+	
+	<link href="{% mystatic 'css/base.css' %}" rel="stylesheet">
+	
+	<script src="https://code.jquery.com/jquery-2.2.3.min.js"></script>
+	
+	<script src="/static/js/angular.min.js"></script>
+  	<script src="{% mystatic 'js/base.js' %}"></script>
+    
+	 <title>Weather Report</title>
+</head>
+<body ng-app="baseApp">
+	
+	<nav class="navbar navbar-default">
+	  <div class="container-fluid">
+	    <div class="navbar-header">
+	      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+	        <span class="sr-only">Toggle navigation</span>
+	        <span class="icon-bar"></span>
+	        <span class="icon-bar"></span>
+	        <span class="icon-bar"></span>
+	      </button>
+	      <a class="navbar-brand" href="#">Data visualiser</a>
+	    </div>
+	    
+	  </div>
+	</nav>
+
+
+	<div class="container">
+		<h1>Weather data visualiser</h1>
+		
+		{% if data_available %}
+			<div ng>
+				Select region : 
+					<select>
+						<option value="England">England</option>
+						<option value="UK">UK</option>
+						<option value="Scotland">Scotland</option>
+						<option value="Wales">Wales</option>
+					</select>
+					
+				  <div id="chart_div"></div>
+			</div>
+		
+		{% else %}
+		
+			{% if in_prog %}
+				<p>
+					Data Fetch is in progress. Please refresh this page in a couple of minutes. 
+				</p>
+			{% else %}
+				<p>No data available. Click below to fetch data.
+					<form method="post" action="">
+					{% csrf_token %}
+					<input type="submit" value="Fetch data">
+					</form> 
+				</p>
+			{% endif %}
+		
+		{% endif %}
+		
+		
+	</div>
+
+	<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+	<script type="text/javascript">
+		google.charts.load('current', {packages: ['corechart', 'line']});
+		google.charts.setOnLoadCallback(drawCurveTypes);
+	
+		function drawCurveTypes() {
+		      var data = new google.visualization.DataTable();
+		      data.addColumn('number', 'X');
+		      data.addColumn('number', 'Dogs');
+		      data.addColumn('number', 'Cats');
+	
+		      data.addRows([
+		        [0, 0, 0],    [1, 10, 5],   [2, 23, 15],  [3, 17, 9],   [4, 18, 10],  [5, 9, 5],
+		        [6, 11, 3],   [7, 27, 19],  [8, 33, 25],  [9, 40, 32],  [10, 32, 24], [11, 35, 27],
+		        [12, 30, 22], [13, 40, 32], [14, 42, 34], [15, 47, 39], [16, 44, 36], [17, 48, 40],
+		        [18, 52, 44], [19, 54, 46], [20, 42, 34], [21, 55, 47], [22, 56, 48], [23, 57, 49],
+		        [24, 60, 52], [25, 50, 42], [26, 52, 44], [27, 51, 43], [28, 49, 41], [29, 53, 45],
+		        [30, 55, 47], [31, 60, 52], [32, 61, 53], [33, 59, 51], [34, 62, 54], [35, 65, 57],
+		        [36, 62, 54], [37, 58, 50], [38, 55, 47], [39, 61, 53], [40, 64, 56], [41, 65, 57],
+		        [42, 63, 55], [43, 66, 58], [44, 67, 59], [45, 69, 61], [46, 69, 61], [47, 70, 62],
+		        [48, 72, 64], [49, 68, 60], [50, 66, 58], [51, 65, 57], [52, 67, 59], [53, 70, 62],
+		        [54, 71, 63], [55, 72, 64], [56, 73, 65], [57, 75, 67], [58, 70, 62], [59, 68, 60],
+		        [60, 64, 56], [61, 60, 52], [62, 65, 57], [63, 67, 59], [64, 68, 60], [65, 69, 61],
+		        [66, 70, 62], [67, 72, 64], [68, 75, 67], [69, 80, 72]
+		      ]);
+	
+		      var options = {
+		        hAxis: {
+		          title: 'Time'
+		        },
+		        vAxis: {
+		          title: 'Popularity'
+		        },
+		        series: {
+		          1: {curveType: 'function'}
+		        }
+		      };
+	
+		      var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
+		      chart.draw(data, options);
+		    }
+	
+	</script>
+	 
+</body>
+</html>

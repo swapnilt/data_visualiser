@@ -1,0 +1,8 @@
+django==1.10.6
+beautifulsoup4
+requests==2.13.0
+psycopg2
+django-tastypie
+redis
+django-rq
+django-redis-cache
