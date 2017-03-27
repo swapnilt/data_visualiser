@@ -16,7 +16,8 @@ def check_job_status():
         return 
     q = django_rq.get_queue('default')
     job = q.fetch_job(job_id)
-    return job.status
+    if job: return job.status
+    return
 
 
 def homepage(request):
