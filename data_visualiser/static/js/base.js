@@ -3,38 +3,48 @@
 var app = angular.module('baseApp', []);
 
 
-app.controller('baseCtrl', function($scope,$http) {
+app.controller('baseCtrl', function($scope, $http , $q) {
 	
 	$scope.chart = null;
-		
+	$scope.charts_loaded = false;
+	$scope.loading = false;
+	$scope._data_type = null;
+	$scope._region = null;
+	$scope._year = null;
+	$scope._region2 = null;
+	$scope._year2 = null;
+	$scope.region1_data = null;
+	$scope.region2_data = null;
 	
-	function drawCurveTypes() {
+	function drawChart(mydata) {
+			
+			console.log("drawing chart...");
+			if(mydata === null){
+				return;
+			}
+		console.log(mydata);
+			
 	      var data = new google.visualization.DataTable();
-	      data.addColumn('number', 'X');
-	      data.addColumn('number', 'Dogs');
-	      data.addColumn('number', 'Cats');
+	      data.addColumn('string', 'X');
+	      data.addColumn('number', $scope._region);
+	      //check if two graphs are to be shown
+	      node  = mydata[0];
+	      if(node.length == 3 ){
+	      	data.addColumn('number', $scope._region2);
+	      }
+	      
+	      
 
-	      data.addRows([
-	        [0, 0, 0],    [1, 10, 5],   [2, 23, 15],  [3, 17, 9],   [4, 18, 10],  [5, 9, 5],
-	        [6, 11, 3],   [7, 27, 19],  [8, 33, 25],  [9, 40, 32],  [10, 32, 24], [11, 35, 27],
-	        [12, 30, 22], [13, 40, 32], [14, 42, 34], [15, 47, 39], [16, 44, 36], [17, 48, 40],
-	        [18, 52, 44], [19, 54, 46], [20, 42, 34], [21, 55, 47], [22, 56, 48], [23, 57, 49],
-	        [24, 60, 52], [25, 50, 42], [26, 52, 44], [27, 51, 43], [28, 49, 41], [29, 53, 45],
-	        [30, 55, 47], [31, 60, 52], [32, 61, 53], [33, 59, 51], [34, 62, 54], [35, 65, 57],
-	        [36, 62, 54], [37, 58, 50], [38, 55, 47], [39, 61, 53], [40, 64, 56], [41, 65, 57],
-	        [42, 63, 55], [43, 66, 58], [44, 67, 59], [45, 69, 61], [46, 69, 61], [47, 70, 62],
-	        [48, 72, 64], [49, 68, 60], [50, 66, 58], [51, 65, 57], [52, 67, 59], [53, 70, 62],
-	        [54, 71, 63], [55, 72, 64], [56, 73, 65], [57, 75, 67], [58, 70, 62], [59, 68, 60],
-	        [60, 64, 56], [61, 60, 52], [62, 65, 57], [63, 67, 59], [64, 68, 60], [65, 69, 61],
-	        [66, 70, 62], [67, 72, 64], [68, 75, 67], [69, 80, 72]
-	      ]);
+		  data.addRows(mydata);
+		  
+		
 
 	      var options = {
 	        hAxis: {
-	          title: 'Time'
+	          title: 'Month'
 	        },
 	        vAxis: {
-	          title: 'Popularity'
+	          title: $scope.data_type
 	        },
 	        series: {
 	          1: {curveType: 'function'}
@@ -46,24 +56,252 @@ app.controller('baseCtrl', function($scope,$http) {
 	    }
 	
 
-	$scope.get_data = function(){
-		  $http.get("/api/v1/maxtemp/").
-		  success(function(data, status){
-			  console.log(data);
-			  drawCurveTypes();			  
-		  }).
-		  error(function(data, status){
+	
+	
+	
+	$scope.load_complete = function(){
+		$scope.charts_loaded = true;
+	}
+	
+	
+	$scope.get_region1_data = function(callback){
+	
+		console.log("in get_region1_data");
+		if($scope._data_type === null || $scope._region === null || $scope._year === null){
+			
+			console.log("unable to fetch data. form is invalid");
+			return;
+		}
+		 var query = "region=" + $scope._region + "&" + "year=" + $scope._year;
+		 var url = "/api/v1/" + $scope._data_type + "/?" + query;
+		  
+		 $http.get(url).
+		   
+		 success(function(data, status){ 
+		 	callback(data, status);
+		 
+		 }).
+		 error(function(data, status){
+		 	 $scope.loading = false;
 			  console.log(data);
 			  console.log(status);
 			  alert("Error in fetching data");
-		  })
+		 });
+	
+	}
+	
+	$scope.get_region2_data = function(callback){
+		
+		  console.log("in get_region2_data");
+			
+		  if($scope._data_type === null || $scope._region2 === null || $scope._year2 === null){
+		  	
+		  		console.log("unable to fetch data. form is invalid");
+		  		return;
+		  }
 		  
+			var query = "region=" + $scope._region2 + "&" + "year=" + $scope._year2;
+			var url = "/api/v1/" + $scope._data_type + "/?" + query;
+			$http.get(url).
+			success(function(data, status){
+				callback(data, status);
+			}).
+			error(function(data, status){
+			  	  $scope.loading = false;
+				  console.log(data);
+				  console.log(status);
+				  alert("Error in fetching data");
+			});
+			
+			
+	}
+	
+	$scope.update_data_type = function(){
+		
+		if($scope.data_type === $scope._data_type){
+			// redraw only if there is a change
+			return;
+			
+		}
+		
+		$scope._data_type = $scope.data_type;
+		$scope.loading = true;
+		$scope.get_region1_data(function(data, status){
+			
+			console.log("in sucess of region1 data promise");
+			$scope.region1_data = data.objects;
+			$scope.get_region2_data(function(data, status){
+				
+				$scope.region2_data = data.objects;
+			  	// send updated data to draw function
+				  data = $scope.prepare_chart_data();
+				  drawChart(data);
+			});
+			
+		});
+		
+		  
+		  
+		
+		
+	}
+	
+	
+	
+	$scope.prepare_chart_data = function(){
+	
+		var months = ['January', 'February', 'March', 'April', 'May', 'June',
+			'July', 'August', 'September', 'October', 'November', 'December'];
+			
+		console.log("trying to prepare chart data...");
+		if($scope._region1 === null){
+			console.log("unable to prepare chart data. region1 data is null");
+			return;
+		}
+			
+		if($scope._region2 !== null){
+			
+			//var data = [['Month', $scope._region1, $scope._region2]];
+			var data = [];
+			for(var i=0; i<12; i++){
+			
+				month = months[i];
+				monthly_data1 = $scope.region1_data[i];
+				monthly_data2 = $scope.region2_data[i];
+				node = [ month, monthly_data1.value, monthly_data2.value ]
+				console.log("pushing node:");
+				console.log(node)
+				data.push(node);
+				console.log("data ");
+				console.log(data);
+			}
+			
+			console.log("returning data: ");
+			console.log(data);
+			
+			return data;
+		
+		}else{
+		
+			//var data = [['Month', $scope._region1]];
+			var data = [];
+			for(var i=0; i<12; i++){
+			
+				month = months[i];
+				monthly_data1 = $scope.region1_data[i];
+				
+				node = [ month, monthly_data1.value ];
+				console.log("pushing node:");
+				console.log(node)
+				data.push(node);
+				console.log("data ");
+				console.log(data);
+			}
+		
+			console.log("returning data: ");
+			console.log(data);
+			return data;
+			
+		}
+	
+	}
+	
+	$scope.update_region1_chart = function(){
+		
+		console.log("updating region1 chart");
+		$scope.loading = true;
+		$scope.get_region1_data(function(data, status){
+			
+			$scope.loading = false;  
+			  $scope.region1_data = data.objects;
+			  // send updated data to draw function
+			  data = $scope.prepare_chart_data();
+			  drawChart(data);
+		
+		});
+	
+	}
+	
+	$scope.update_region2_chart = function(){
+		
+		console.log("updating region2 chart");
+		$scope.loading = true;
+		$scope.get_region2_data(function(data, status){
+			
+			$scope.loading = false;  
+			  $scope.region2_data = data.objects;
+			  // send updated data to draw function
+			  data = $scope.prepare_chart_data();
+			  drawChart(data);
+		
+		});
+	
+	}
+	
+	
+	$scope.update_region = function(){
+		
+		console.log("in update region");
+		if($scope.region === $scope._region){
+			// return if no change
+			console.log("no change detected");
+			return;
+		}
+		$scope._region = $scope.region;
+		$scope.update_region1_chart();
+		
+	}
+
+	$scope.update_year = function(){
+		
+		console.log("in update year");
+		if($scope.year === $scope._year){
+			// redraw only if there is a change
+			console.log("no change detected");
+			return;
+			
+		}
+		$scope._year = $scope.year;
+		$scope.update_region1_chart();
+		
+	}
+	
+	
+	
+	
+	
+	$scope.update_region2 = function(){
+		
+		console.log("in update region2");
+		if($scope.region2 === $scope._region2){
+			console.log("no change detected");
+			// redraw only if there is a change
+			return;
+			
+		}
+		$scope._region2 = $scope.region2;
+		$scope.update_region2_chart(); 
+		
+		
+	}
+	
+	$scope.update_year2 = function(){
+		console.log("in update year2");
+		if($scope.year2 === $scope._year2){
+			console.log("no change detected");
+			// redraw only if there is a change
+			return;
+			
+		}
+		
+		$scope._year2 = $scope.year2;
+		$scope.update_region2_chart();		
 	}
 	
 	$scope.init = function(){
 		console.log("initializing google chart");
 		google.charts.load('current', {packages: ['corechart', 'line']});
-		google.charts.setOnLoadCallback($scope.get_data);
+		//google.charts.setOnLoadCallback($scope.load_complete);
 	}
 	
 	$scope.init();

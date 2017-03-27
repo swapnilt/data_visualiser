@@ -13,6 +13,11 @@ register = template.Library()
 
 @register.simple_tag()
 def mystatic(wfilepath):
+    '''
+    This tag helps to invalidate client side browser cache when a server side
+    static resource eg. js file is updated. It attaches a version string based on
+    the last updated timestamp to the file's url.  
+    '''
     if settings.DEBUG:
         result = finders.find(wfilepath)
         if result:
@@ -41,5 +46,4 @@ def mystatic(wfilepath):
         res = wfilepath + "?v=" + str(int(mtime))
     except OSError, e:
         res = wfilepath
-    print "my static returning ", res
     return res

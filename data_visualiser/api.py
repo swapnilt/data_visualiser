@@ -21,7 +21,9 @@ class MaxTempResource(ModelResource):
         authorization = Authorization()
         always_return_data = True 
         authentication = Authentication()
-    
+        
+        
+
 class MinTempResource(ModelResource):
     class Meta:
         queryset = MinTempData.objects.all()

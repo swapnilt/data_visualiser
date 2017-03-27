@@ -41,19 +41,68 @@
 
 
 	<div class="container">
-		<h1>Weather data visualiser</h1>
+		<h1>Weather data visualiser 
+			<image ng-show="loading" src="/static/images/spinner.gif" with="60px" height="60px"></image>
+		</h1>
 		
 		{% if data_available %}
 			<div ng-controller="baseCtrl">
-				Select region : 
-					<select>
-						<option value="England">England</option>
-						<option value="UK">UK</option>
-						<option value="Scotland">Scotland</option>
-						<option value="Wales">Wales</option>
-					</select>
+			{% verbatim %}
+				<div>
+					Select Data Type:
+						<select ng-model="data_type" ng-change="update_data_type()">
+							<option value="maxtemp">Max Temperature</option>
+							<option value="mintemp">Min Temperature</option>
+							<option value="meantemp">Mean Temperature</option>
+							<option value="raindata">Rain</option>
+							<option value="sushinedata">Sunshine</option>
+						</select>
+				</div><br>
+				
+				<h4>Compare data</h4>
+				<div>
+					Select region : 
+						<select ng-model="region" ng-change="update_region()">
+							<option value="England">England</option>
+							<option value="UK">UK</option>
+							<option value="Scotland">Scotland</option>
+							<option value="Wales">Wales</option>
+						</select>
 					
-				  <div id="chart_div"></div>
+					Select year:
+						<select ng-model="year" ng-change="update_year()">
+							<option value="1991">1991</option>
+							<option value="1992">1992</option>
+							<option value="1993">1993</option>
+							<option value="1994">1994</option>
+						</select>
+				</div>
+					
+				<br>
+				 
+				
+				<div>
+					Select Region:
+						<select ng-model="region2" ng-change="update_region2()">
+							<option value="England">England</option>
+							<option value="UK">UK</option>
+							<option value="Scotland">Scotland</option>
+							<option value="Wales">Wales</option>
+						</select>
+						
+					 Select year:
+						<select ng-model="year2" ng-change="update_year2()">
+							<option value="1991">1991</option>
+							<option value="1992">1992</option>
+							<option value="1993">1993</option>
+							<option value="1994">1994</option>
+						</select>
+				</div>
+				
+				
+				<div id="chart_div"></div>
+				  
+			{% endverbatim %}
 			</div>
 		
 		{% else %}
