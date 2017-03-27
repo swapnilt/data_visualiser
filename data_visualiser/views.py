@@ -16,7 +16,8 @@ def reset_job():
 
 def check_job_status():
     # check if job is finished        
-    status = cache.get(DATA_FETCH_STATUS)    
+    status = cache.get(DATA_FETCH_STATUS)
+    if not status:  return
     if status == DATA_FETCH_COMPLETE:
         return status
     
